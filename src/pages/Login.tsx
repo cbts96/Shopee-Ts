@@ -1,22 +1,29 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
 // import { omit } from 'lodash'
-import React from 'react'
+import React, { useContext } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { LoginAccount } from 'src/api/auth.api'
+import Button from 'src/components/Button'
 import Input from 'src/components/Input/Input'
+import { AppContext } from 'src/context/app.context'
+import { ErrorResponse } from 'src/types/ultil.type'
 import { getRules, schema, Schema } from 'src/utils/rules/Rules'
+import { IsAxiosUEError } from 'src/utils/utils'
+
 
 type FormData = Omit<Schema, 'confirm_password'>
 const loginSchema = schema.pick(['email', 'password'])
 const Login = () => {
+  const {setIsAuth} =useContext(AppContext)
+  const navigate=useNavigate()
   const {
     handleSubmit,
     getValues,
 
     register,
-    // setError,
+    setError,
     formState: { errors }
   } = useForm<FormData>({ resolver: yupResolver(loginSchema) })
   const rules = getRules(getValues)
@@ -25,8 +32,22 @@ const Login = () => {
   })
   const onSubmit = handleSubmit((data) => {
     loginMutation.mutate(data, {
-      onSuccess: (data) => {
-        console.log(data, 'login mut')
+      onSuccess: () => {
+        setIsAuth(true)
+        navigate("/")
+      },
+      onError:(error)=>{
+        if(IsAxiosUEError<ErrorResponse<FormData>>(error)){
+          const formError=error.response?.data.data
+          if(formError){
+            Object.keys(formError).forEach((key)=>{
+              setError(key as keyof FormData,{
+                message:formError[key as keyof FormData],
+                type: "Server"
+              })
+            })
+          }
+        }
       }
     })
   })
@@ -69,13 +90,13 @@ const Login = () => {
                     <div className='mt-1 min-h-[1rem] text-sm text-red-600'></div>
                   </div>
                   <div className='mt-3'>
-                    <button className='w-full bg-red-500 py-4 px-2 text-center text-sm uppercase text-white hover:bg-red-600'>
+                    <Button className='w-full bg-red-500 py-4 px-2 text-center text-sm uppercase text-white hover:bg-red-600'>
                       Đăng nhập
-                    </button>
+                    </Button>
                   </div>
                   <div className='mt-8 flex items-center justify-center'>
                     <span className='mr-2 text-gray-400'> Ban chưa có tài khoản</span>
-                    <Link className='text-red-400' to='/rigister'>
+                    <Link className='text-red-400' to='/register'>
                       Quay về Đăng Ký
                     </Link>
                   </div>

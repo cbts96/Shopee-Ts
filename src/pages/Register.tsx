@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Input from 'src/components/Input/Input'
 import { getRules, Schema, schema } from '../utils/rules/Rules'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -8,13 +8,17 @@ import { useMutation } from '@tanstack/react-query'
 import { RegisterAccount } from 'src/api/auth.api'
 import omit from 'lodash/omit'
 import { IsAxiosUEError } from 'src/utils/utils'
-import { ResponseApi } from 'src/types/ultil.type'
+import { ErrorResponse } from 'src/types/ultil.type'
+import { AppContext } from 'src/context/app.context'
+import Button from 'src/components/Button'
 // import { type } from 'os'
 
 type FormData = Schema
 // type FormData = Pick<Schema, 'email' | 'password' | 'confirm_password'>
 // const registerSchema = schema.pick(['email', 'password', 'confirm_password'])
 const Register = () => {
+  const {setIsAuth}=useContext(AppContext)
+  const navigate=useNavigate()
   // const registerSchema = schema.pick(['email', 'password', 'confirm_password'])
   const {
     handleSubmit,
@@ -35,10 +39,11 @@ const Register = () => {
     const body = omit(data, ['confirm_password'])
     registerMutation.mutate(body, {
       onSuccess: (data) => {
-        console.log(data)
+        setIsAuth(true)
+        navigate("/")
       },
       onError: (error) => {
-        if (IsAxiosUEError<ResponseApi<Omit<FormData, 'confirm_password'>>>(error)) {
+        if (IsAxiosUEError<ErrorResponse<Omit<FormData, 'confirm_password'>>>(error)) {
           const FormError = error.response?.data.data
           if (FormError) {
             Object.keys(FormError).forEach((key) => {
@@ -101,9 +106,9 @@ const Register = () => {
                 />
               </div>
               <div className='mt-3'>
-                <button className='w-full bg-red-500 py-4 px-2 text-center text-sm uppercase text-white hover:bg-red-600'>
+                <Button className='w-full bg-red-500 py-4 px-2 text-center text-sm uppercase text-white hover:bg-red-600'>
                   Đăng ký
-                </button>
+                </Button>
               </div>
               <div className='mt-8 flex items-center justify-center'>
                 <span className='mr-2 text-gray-400'> Bạn đã có tài khoản</span>

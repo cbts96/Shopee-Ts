@@ -1,9 +1,14 @@
 // import React, { ElementType, useRef, useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { useContext } from 'react'
 import { Link } from 'react-router-dom'
+import { Logout } from 'src/api/auth.api'
+import { AppContext } from 'src/context/app.context'
 // import { useFloating, type Placement, FloatingPortal, arrow, offset, shift } from '@floating-ui/react'
 // import { motion, AnimatePresence } from 'framer-motion'
 import Popover from '../Popover'
 const Header = () => {
+ 
   // const [open, setOpen] = useState<boolean>(false)
   // const arrowRef = useRef<HTMLElement>(null)
   // const { x, y, floating, reference, strategy, middlewareData } = useFloating({
@@ -21,7 +26,17 @@ const Header = () => {
   // const showPopover = () => {
   //   setOpen(true)
   // }
+  const {setIsAuth,isAuth }=useContext(AppContext)
+const logoutMutation=useMutation({
+  mutationFn: Logout,
+  onSuccess:()=>{
+    setIsAuth(false)
+  }
+})
 
+const handleLogout=()=>{
+  logoutMutation.mutate()
+}
   return (
     <div className='bg-[linear-gradient(-180deg,#f53d2d,#f63)] pb-5 pt-3'>
       <div className='container'>
@@ -90,17 +105,51 @@ const Header = () => {
               </div>
             }
           >
-            <div className='ml-3 flex cursor-pointer items-center py-1 text-white hover:text-gray-300'>
-              <div className='mr-2 h-7 w-7 flex-shrink-0'>
-                <img
-                  className='rounded-full'
-                  src='https://cf.shopee.vn/file/4dbd95369e6399694a47825593846377_tn'
-                  alt=''
-                />
-              </div>
-              <div className='name'>Le Thang</div>
-            </div>
+
+           {!isAuth && (
+        <div className='flex items-center'>
+          <Link to="/register" className='mx-3 capitalize hover:text-white/70'>
+            Đăng ký
+          </Link>
+          <div className='h-4 border-r-[1px] border-r-white/40' />
+          <Link to="/login" className='mx-3 capitalize hover:text-white/70'>
+            Đăng nhập
+          </Link>
+        </div>
+      )}
           </Popover>
+          {isAuth && (
+        <Popover
+          className='ml-6 flex cursor-pointer items-center py-1 hover:text-white/70'
+          renderPopover={
+            <div className='relative rounded-sm border border-gray-200 bg-white shadow-md'>
+              <Link
+                to="/profile"
+                className='block w-full bg-white py-3 px-4 text-left hover:bg-slate-100 hover:text-cyan-500'
+              >
+                Tài khoản của tôi
+              </Link>
+              <Link
+                to="/"
+                className='block w-full bg-white py-3 px-4 text-left hover:bg-slate-100 hover:text-cyan-500'
+              >
+                Đơn mua
+              </Link>
+              <button
+               onClick={handleLogout}
+                className='block w-full bg-white py-3 px-4 text-left hover:bg-slate-100 hover:text-cyan-500'
+              >
+                Đăng xuất
+              </button>
+            </div>
+          }
+        >
+          <div className='mr-2 h-6 w-6 flex-shrink-0'>
+            <img src="https://down-vn.img.susercontent.com/file/4dbd95369e6399694a47825593846377_tn" alt='avatar' className='h-full w-full rounded-full object-cover' />
+          </div>
+          <div>Le thang</div>
+        </Popover>
+      )}
         </div>
         <div className='mt-3 mr-6 grid grid-cols-12 items-end gap-4'>
           <Link to='/'>

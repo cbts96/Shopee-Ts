@@ -1,7 +1,9 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import {useMatch, Link } from 'react-router-dom'
 
 const Header = () => {
+  const isRegister= useMatch("/register")
+  const params=Boolean(isRegister)
   return (
     <header className='pb-15'>
       <div className='mx-auto max-w-7xl px-4'>
@@ -13,7 +15,7 @@ const Header = () => {
               </g>
             </svg>
           </Link>
-          <div className='ml-5 text-xl lg:text-2xl'>Đăng ký</div>
+          <div className='ml-5 text-xl lg:text-2xl'>{params? "Đăng ký":"Đăng nhập"}</div>
         </nav>
       </div>
     </header>
